@@ -1,4 +1,5 @@
 import { Sun, Moon, Bell, Menu } from "lucide-react";
+import LogoutButton from "../components/Logout";
 
 const Navbar = ({ isDark, toggleTheme, toggleSidebar }) => {
   return (
@@ -33,9 +34,7 @@ const Navbar = ({ isDark, toggleTheme, toggleSidebar }) => {
           )}
         </button>
 
-        <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
-          A
-        </div>
+        <LogoutButton />
       </div>
     </header>
   );

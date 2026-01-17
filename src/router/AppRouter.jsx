@@ -6,6 +6,7 @@ import ProductForm from "../components/ProductForm";
 import ProductList from "../components/ProductList";
 import AdminDetails from "../components/AdminDetails";
 import EditAdmin from "../components/EditAdmin";
+import Login from "../components/Login";
 
 const AppRouter = () => {
   return (
@@ -18,6 +19,7 @@ const AppRouter = () => {
         <Route path="/settings/users" element={<AdminDetails />} />
         <Route path="/settings/1/edit" element={<EditAdmin />} />
       </Route>
+      <Route path="/login" element={<Login />} />
 
       {/* FALLBACK */}
       <Route path="*" element={<ForbiddenPage />} />
