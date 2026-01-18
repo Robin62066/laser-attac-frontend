@@ -14,11 +14,41 @@ const emptyImage = {
   preview: "",
 };
 
+const MOQ_OPTIONS = [
+  "1-(Sample)",
+  "1-5",
+  "5-20",
+  "20-50",
+  "50-100",
+  "200-500",
+  "500-1000",
+];
+
+const TYPE_OPTIONS = [
+  "MDF",
+  "Acrylic",
+  "LGP",
+  "Cast-Acrylic",
+  "ACP",
+  "Mirror",
+  "Glass-Mirror",
+  "Sunboard",
+];
+
+const BRANDING_OPTIONS = [
+  "Logo Engraving",
+  "Text Engraving",
+  "Image Engraving",
+  "Sticker",
+  "Printed Sticker",
+  // "Color Engraving",
+];
+
 export default function ProductForm() {
   const [name, setName] = useState("");
   const [variants, setVariants] = useState([
     { ...emptyVariant },
-    { ...emptyVariant },
+    // { ...emptyVariant },
   ]);
   const [images, setImages] = useState([{ ...emptyImage }]);
   const [loading, setLoading] = useState(false);
@@ -203,11 +233,92 @@ export default function ProductForm() {
                 <th className="p-3 text-left">MOQ</th>
                 <th className="p-3 text-left">Type</th>
                 <th className="p-3 text-left">Price</th>
-                <th className="p-3 text-left">Engraving</th>
+                <th className="p-3 text-left">Branding</th>
                 <th className="p-3">Remove</th>
               </tr>
             </thead>
+
             <tbody>
+              {variants.map((v, i) => (
+                <tr key={i} className="border-t border-gray-700">
+                  {/* MOQ DROPDOWN */}
+                  <td className="p-2">
+                    <select
+                      className="input"
+                      value={v.moq}
+                      onChange={(e) =>
+                        handleVariantChange(i, "moq", e.target.value)
+                      }
+                    >
+                      <option value="">Select MOQ</option>
+                      {MOQ_OPTIONS.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* TYPE DROPDOWN */}
+                  <td className="p-2">
+                    <select
+                      className="input"
+                      value={v.type}
+                      onChange={(e) =>
+                        handleVariantChange(i, "type", e.target.value)
+                      }
+                    >
+                      <option value="">Select Type</option>
+                      {TYPE_OPTIONS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* PRICE INPUT */}
+                  <td className="p-2">
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="Price"
+                      value={v.price}
+                      onChange={(e) =>
+                        handleVariantChange(i, "price", e.target.value)
+                      }
+                    />
+                  </td>
+
+                  {/* BRANDING DROPDOWN */}
+                  <td className="p-2">
+                    <select
+                      className="input"
+                      value={v.engraving}
+                      onChange={(e) =>
+                        handleVariantChange(i, "engraving", e.target.value)
+                      }
+                    >
+                      <option value="">Select Branding</option>
+                      {BRANDING_OPTIONS.map((e) => (
+                        <option key={e} value={e}>
+                          {e}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* REMOVE */}
+                  <td className="p-2 text-center">
+                    <button type="button" onClick={() => removeVariant(i)}>
+                      <Trash2 size={16} className="text-red-500" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+
+            {/* <tbody>
               {variants.map((v, i) => (
                 <tr key={i} className="border-t border-gray-700">
                   {["moq", "type", "price", "engraving"].map((field) => (
@@ -229,7 +340,7 @@ export default function ProductForm() {
                   </td>
                 </tr>
               ))}
-            </tbody>
+            </tbody> */}
           </table>
         </div>
 

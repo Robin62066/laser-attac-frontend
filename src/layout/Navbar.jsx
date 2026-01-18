@@ -14,7 +14,7 @@ const Navbar = ({ isDark, toggleTheme, toggleSidebar }) => {
         </button>
 
         <h1 className="font-semibold text-slate-800 dark:text-slate-200">
-          Welcome Robin Singh
+          Welcome LASER ATTACK
         </h1>
       </div>
 

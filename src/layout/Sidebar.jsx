@@ -97,7 +97,7 @@ const Sidebar = ({ collapsed, expandSidebar }) => {
       {/* LOGO */}
       <div className="h-12 ml-2 mb-6">
         <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
-          RS
+          LS
         </div>
       </div>
 
