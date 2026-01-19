@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { Upload, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import api from "../api/api";
+import { useNavigate, useParams } from "react-router-dom";
+
+/* ================= CONSTANTS ================= */
 
 const emptyVariant = {
   moq: "",
@@ -10,8 +13,10 @@ const emptyVariant = {
 };
 
 const emptyImage = {
-  file: null,
-  preview: "",
+  file: null, // new image file
+  preview: "", // blob OR server url
+  id: null, // existing image id
+  isExisting: false, // edit mode flag
 };
 
 const MOQ_OPTIONS = [
@@ -41,25 +46,57 @@ const BRANDING_OPTIONS = [
   "Image Engraving",
   "Sticker",
   "Printed Sticker",
-  // "Color Engraving",
 ];
 
+/* ================= COMPONENT ================= */
+
 export default function ProductForm() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+
   const [name, setName] = useState("");
-  const [variants, setVariants] = useState([
-    { ...emptyVariant },
-    // { ...emptyVariant },
-  ]);
+  const [variants, setVariants] = useState([{ ...emptyVariant }]);
   const [images, setImages] = useState([{ ...emptyImage }]);
+  const [removedImages, setRemovedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+
+  /* ================= TOAST ================= */
 
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
 
-  /* ---------------- VARIANTS ---------------- */
+  /* ================= LOAD PRODUCT (EDIT) ================= */
+
+  useEffect(() => {
+    if (!isEdit) return;
+
+    (async () => {
+      try {
+        const { data } = await api.get(`/products/${id}`);
+
+        setName(data.name);
+        setVariants(data.variants);
+
+        const existingImages = data.images.map((img) => ({
+          id: img.id,
+          file: null,
+          preview: img.url, // backend must send full url
+          isExisting: true,
+        }));
+
+        setImages(existingImages.length ? existingImages : [{ ...emptyImage }]);
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to load product", "error");
+      }
+    })();
+  }, [id, isEdit]);
+
+  /* ================= VARIANTS ================= */
 
   const handleVariantChange = (index, field, value) => {
     const updated = [...variants];
@@ -76,61 +113,85 @@ export default function ProductForm() {
     setVariants(variants.filter((_, i) => i !== index));
   };
 
-  /* ---------------- IMAGES ---------------- */
+  /* ================= IMAGES ================= */
 
   const handleImageChange = (index, file) => {
     if (!file) return;
 
     const updated = [...images];
     updated[index] = {
+      ...updated[index],
       file,
       preview: URL.createObjectURL(file),
+      isExisting: false,
     };
     setImages(updated);
   };
 
-  const addImage = () => {
-    if (images.length >= 5)
-      return showToast("Maximum 5 images allowed", "error");
-    setImages([...images, { ...emptyImage }]);
-  };
+  // const addImage = () => {
+  //   if (images.length >= 5)
+  //     return showToast("Maximum 5 images allowed", "error");
+
+  //   setImages([...images, { ...emptyImage }]);
+  // };
 
   const removeImage = (index) => {
     if (images.length === 1)
       return showToast("At least 1 image required", "error");
+
+    const img = images[index];
+
+    if (img.isExisting) {
+      setRemovedImages((prev) => [...prev, img.id]);
+    }
+
     setImages(images.filter((_, i) => i !== index));
   };
 
-  /* ---------------- SUBMIT ---------------- */
+  /* ================= SUBMIT ================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!name.trim()) return showToast("Product name is required", "error");
 
-    const validImages = images.filter((img) => img.file);
+    const validImages = images.filter((img) => img.file || img.isExisting);
     if (validImages.length === 0)
       return showToast("Upload at least 1 image", "error");
 
     setLoading(true);
+
     try {
       const formData = new FormData();
       formData.append("productName", name);
       formData.append("variants", JSON.stringify(variants));
-      validImages.forEach((img) => formData.append("images", img.file));
+      formData.append("removeImages", JSON.stringify(removedImages));
 
-      await api.post("/products", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // upload ONLY new images
+      images
+        .filter((img) => img.file && !img.isExisting)
+        .forEach((img) => {
+          formData.append("images", img.file);
+        });
 
-      showToast("Product saved successfully ✅");
-      setName("");
-      setVariants([{ ...emptyVariant }]);
-      setImages([{ ...emptyImage }]);
+      if (isEdit) {
+        await api.put(`/products/${id}`, formData);
+        showToast("Product updated successfully");
+      } else {
+        await api.post("/products", formData);
+        showToast("Product created successfully");
+      }
+
+      navigate("/products");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to save product", "error");
     } finally {
       setLoading(false);
     }
   };
+
+  /* ================= UI ================= */
 
   return (
     <div className="min-h-screen bg-[#111] flex items-center justify-center p-6">
@@ -152,7 +213,7 @@ export default function ProductForm() {
         )}
 
         <h2 className="text-2xl font-semibold text-white mb-6">
-          Create Product
+          {isEdit ? "Edit Product" : "Create Product"}
         </h2>
 
         {/* PRODUCT NAME */}
@@ -172,13 +233,13 @@ export default function ProductForm() {
             <p className="text-gray-400 text-sm font-medium flex items-center gap-2">
               <ImageIcon size={16} /> Product Images
             </p>
-            <button
+            {/* <button
               type="button"
               onClick={addImage}
               className="flex items-center gap-1 text-sm text-white bg-indigo-500 px-3 py-1 rounded hover:bg-indigo-600"
             >
               <Plus size={14} /> Add Image
-            </button>
+            </button> */}
           </div>
 
           <div className="space-y-3">
@@ -241,7 +302,6 @@ export default function ProductForm() {
             <tbody>
               {variants.map((v, i) => (
                 <tr key={i} className="border-t border-gray-700">
-                  {/* MOQ DROPDOWN */}
                   <td className="p-2">
                     <select
                       className="input"
@@ -259,7 +319,6 @@ export default function ProductForm() {
                     </select>
                   </td>
 
-                  {/* TYPE DROPDOWN */}
                   <td className="p-2">
                     <select
                       className="input"
@@ -277,7 +336,6 @@ export default function ProductForm() {
                     </select>
                   </td>
 
-                  {/* PRICE INPUT */}
                   <td className="p-2">
                     <input
                       type="number"
@@ -290,7 +348,6 @@ export default function ProductForm() {
                     />
                   </td>
 
-                  {/* BRANDING DROPDOWN */}
                   <td className="p-2">
                     <select
                       className="input"
@@ -300,15 +357,14 @@ export default function ProductForm() {
                       }
                     >
                       <option value="">Select Branding</option>
-                      {BRANDING_OPTIONS.map((e) => (
-                        <option key={e} value={e}>
-                          {e}
+                      {BRANDING_OPTIONS.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
                         </option>
                       ))}
                     </select>
                   </td>
 
-                  {/* REMOVE */}
                   <td className="p-2 text-center">
                     <button type="button" onClick={() => removeVariant(i)}>
                       <Trash2 size={16} className="text-red-500" />
@@ -317,30 +373,6 @@ export default function ProductForm() {
                 </tr>
               ))}
             </tbody>
-
-            {/* <tbody>
-              {variants.map((v, i) => (
-                <tr key={i} className="border-t border-gray-700">
-                  {["moq", "type", "price", "engraving"].map((field) => (
-                    <td className="p-2" key={field}>
-                      <input
-                        className="input"
-                        placeholder={field}
-                        value={v[field]}
-                        onChange={(e) =>
-                          handleVariantChange(i, field, e.target.value)
-                        }
-                      />
-                    </td>
-                  ))}
-                  <td className="p-2 text-center">
-                    <button type="button" onClick={() => removeVariant(i)}>
-                      <Trash2 size={16} className="text-red-500" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody> */}
           </table>
         </div>
 

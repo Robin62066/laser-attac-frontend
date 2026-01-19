@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
-import { Edit3, Trash2, ImageIcon } from "lucide-react";
+import { Edit3, Trash2, ImageIcon, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
+
+const API_BASE_URL = "http://localhost:4000"; // adjust if needed
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
+  const navigate = useNavigate();
+
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
   };
 
-  // Fetch products from API
+  /* ---------------- FETCH PRODUCTS ---------------- */
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -25,14 +31,17 @@ export default function ProductList() {
     fetchProducts();
   }, []);
 
+  /* ---------------- DELETE ---------------- */
+
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
+
     try {
       await api.delete(`/products/${id}`);
-      setProducts(products.filter((p) => p.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       showToast("Product deleted ✅");
-    } finally {
-      setLoading(false);
+    } catch {
+      showToast("Failed to delete product", "error");
     }
   };
 
@@ -60,12 +69,13 @@ export default function ProductList() {
           <table className="w-full text-left">
             <thead className="bg-[#222] text-gray-400 text-sm">
               <tr>
-                <th className="p-3">Product Name</th>
+                <th className="p-3">Product</th>
                 <th className="p-3">Variants</th>
-                <th className="p-3">Images</th>
+                <th className="p-3">Image</th>
                 <th className="p-3">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {loading ? (
                 <tr>
@@ -80,32 +90,66 @@ export default function ProductList() {
                   </td>
                 </tr>
               ) : (
-                products.map((p) => (
-                  <tr
-                    key={p.id}
-                    className="border-t border-gray-700 hover:bg-gray-800 transition-colors"
-                  >
-                    <td className="p-3 text-white font-medium">{p.name}</td>
-                    <td className="p-3 text-gray-300">{p.variants.length}</td>
-                    <td className="p-3 text-gray-300 flex items-center gap-1">
-                      <ImageIcon size={16} /> {p.images.length}
-                    </td>
-                    <td className="p-3 flex gap-2">
-                      <button
-                        className="flex items-center gap-1 px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white rounded-md text-sm"
-                        // Add your edit logic here
-                      >
-                        <Edit3 size={14} /> Edit
-                      </button>
-                      <button
-                        className="flex items-center gap-1 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
-                        onClick={() => handleDelete(p.id)}
-                      >
-                        <Trash2 size={14} /> Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                products.map((p) => {
+                  const firstImage =
+                    p.ProductImages?.length > 0
+                      ? `${API_BASE_URL}/uploads/images/${p.ProductImages[0].image}`
+                      : null;
+
+                  return (
+                    <tr
+                      key={p.id}
+                      className="border-t border-gray-700 hover:bg-gray-800 transition"
+                    >
+                      {/* PRODUCT NAME */}
+                      <td className="p-3 text-white font-medium">{p.name}</td>
+
+                      {/* VARIANTS COUNT */}
+                      <td className="p-3 text-gray-300">
+                        {p.ProductVariants?.length || 0}
+                      </td>
+
+                      {/* IMAGE */}
+                      <td className="p-3">
+                        {firstImage ? (
+                          <img
+                            src={firstImage}
+                            alt={p.name}
+                            className="h-10 w-10 object-cover rounded border border-gray-600"
+                          />
+                        ) : (
+                          <div className="flex items-center gap-1 text-gray-400 text-sm">
+                            <ImageIcon size={14} /> No image
+                          </div>
+                        )}
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="p-3 flex gap-2">
+                        <button
+                          onClick={() => navigate(`/products/view/${p.id}`)}
+                          className="flex items-center gap-1 px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm"
+                        >
+                          <Eye size={14} /> View
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/products/edit/${p.id}`)}
+                          className="flex items-center gap-1 px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white rounded-md text-sm"
+                        >
+                          <Edit3 size={14} /> Edit
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          className="flex items-center gap-1 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

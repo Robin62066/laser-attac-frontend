@@ -15,6 +15,8 @@ const LogoutButton = () => {
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
     // Redirect to login page
     navigate("/login", { replace: true });
