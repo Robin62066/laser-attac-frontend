@@ -81,11 +81,11 @@ export default function ProductView() {
         .product-table th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; font-size: 12px; }
         .product-name-cell { font-weight: bold; font-size: 16px; vertical-align: middle; background-color: #fff; }
         .header-container img { width: 100%; height: 220px; object-fit: cover; border: 1px solid #000; }
-        .image-gallery img { height: 180px; border: 1px solid #000; padding: 4px; background: white; }
+        .image-gallery img { padding: 4px; background: white; }
         .print-only { display: none; }
         @media screen { .screen-only { display: flex; } }
       `}</style>
-
+      {/* .image-gallery img { height: 180px; border: 1px solid #000; padding: 4px; background: white; } */}
       <div className="max-w-5xl mx-auto bg-white p-8 shadow-lg">
         {/* ACTION BUTTONS */}
         <div className="flex justify-end gap-3 mb-6 screen-only">
