@@ -28,48 +28,52 @@ export default function ProductView() {
       html2canvas: { scale: 2, useCORS: true }, // scale 2 for high quality
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
-
+    
     // Use the library to generate PDF
     // Note: Ensure html2pdf is available globally via CDN in index.html
     window.html2pdf().from(element).set(opt).save();
   };
+  
+  // ----------------------------------------
 
   /* ---------------- PRINT HANDLER ---------------- */
-  //   const handlePrint = () => {
-  //     const content = printRef.current.innerHTML;
-  //     const bannerAbsolute = window.location.origin + "/laserbanner.jpg";
-  //     const finalHTML = content.replace("/laserbanner.jpg", bannerAbsolute);
+    // const handlePrint = () => {
+    //   const content = printRef.current.innerHTML;
+    //   const bannerAbsolute = window.location.origin + "/laserbanner.jpg";
+    //   const finalHTML = content.replace("/laserbanner.jpg", bannerAbsolute);
 
-  //     const win = window.open("", "_blank", "width=1000,height=800");
-  //     win.document.write(`
-  //       <html>
-  //         <head>
-  //           <title>${product.name}</title>
-  //           <style>
-  //             @page { size: auto; margin: 10mm; }
-  //             body { font-family: Arial, sans-serif; padding: 20px; }
-  //             .screen-only { display: none !important; }
-  //             .print-only { display: table !important; width: 100%; }
-  //             .product-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  //             .product-table th, .product-table td { border: 1px solid #000; padding: 10px; text-align: center; }
-  //             .product-table th { background: #f2f2f2 !important; font-weight: bold; text-transform: uppercase; }
-  //             .product-name-cell { font-weight: bold; font-size: 16px; vertical-align: middle; }
-  //             .header-container img { width: 100%; height: 220px; object-fit: cover; }
-  //             .image-gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-  //             .image-gallery img { height: 180px; border: 1px solid #000; padding: 4px; }
-  //             .footer-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-  //             .footer-table td { border: 1px solid #000; padding: 10px; font-size: 10px; text-align: center; }
-  //             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  //           </style>
-  //         </head>
-  //         <body>
-  //           ${finalHTML}
-  //           <script>window.onload = function() { window.print(); window.close(); };</script>
-  //         </body>
-  //       </html>
-  //     `);
-  //     win.document.close();
-  //   };
+    //   const win = window.open("", "_blank", "width=1000,height=800");
+    //   win.document.write(`
+    //     <html>
+    //       <head>
+    //         <title>${product.name}</title>
+    //         <style>
+    //           @page { size: auto; margin: 10mm; }
+    //           body { font-family: Arial, sans-serif; padding: 20px; }
+    //           .screen-only { display: none !important; }
+    //           .print-only { display: table !important; width: 100%; }
+    //           .product-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    //           .product-table th, .product-table td { border: 1px solid #000; padding: 10px; text-align: center; }
+    //           .product-table th { background: #f2f2f2 !important; font-weight: bold; text-transform: uppercase; }
+    //           .product-name-cell { font-weight: bold; font-size: 16px; vertical-align: middle; }
+    //           .header-container img { width: 100%; height: 220px; object-fit: cover; }
+    //           .image-gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    //           .image-gallery img { height: 180px; border: 1px solid #000; padding: 4px; }
+    //           .footer-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+    //           .footer-table td { border: 1px solid #000; padding: 10px; font-size: 10px; text-align: center; }
+    //           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    //         </style>
+    //       </head>
+    //       <body>
+    //         ${finalHTML}
+    //         <script>window.onload = function() { window.print(); window.close(); };</script>
+    //       </body>
+    //     </html>
+    //   `);
+    //   win.document.close();
+    // };
+    
+    // --------------------------------
 
   if (!product) return <div className="p-6 text-center">Loading...</div>;
 
@@ -95,12 +99,15 @@ export default function ProductView() {
           >
             <Download size={18} /> Download PDF
           </button>
+
+          {/* ------------------------- */}
           {/* <button
             onClick={handlePrint}
             className="bg-black text-white px-6 py-2 rounded font-bold hover:bg-gray-800 flex items-center gap-2"
           >
             <Printer size={18} /> Print Sheet
           </button> */}
+          {/* ------------------------ */}
         </div>
 
         {/* PRINTABLE AREA */}
