@@ -10,6 +10,7 @@ const emptyVariant = {
   type: "",
   price: "",
   engraving: "",
+  engraving_cost_piece: "",
 };
 
 const emptyImage = {
@@ -157,7 +158,7 @@ export default function ProductForm() {
 
     const validImages = images.filter((img) => img.file || img.isExisting);
     if (validImages.length === 0)
-      return showToast("Upload at least 1 image", "error");
+      return showToast("Upload image first", "error");
 
     setLoading(true);
 
@@ -294,7 +295,8 @@ export default function ProductForm() {
                 <th className="p-3 text-left">MOQ</th>
                 <th className="p-3 text-left">Type</th>
                 <th className="p-3 text-left">Price</th>
-                <th className="p-3 text-left">Branding</th>
+                <th className="p-3 text-left">Branding Type</th>
+                <th className="p-3 text-left">Logo Branding Cost/piece</th>
                 <th className="p-3">Remove</th>
               </tr>
             </thead>
@@ -365,11 +367,28 @@ export default function ProductForm() {
                     </select>
                   </td>
 
+                  <td className="p-2">
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="LogoPrice/piece"
+                      value={v.engraving_cost_piece}
+                      onChange={(e) =>
+                        handleVariantChange(
+                          i,
+                          "engraving_cost_piece",
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </td>
+
                   <td className="p-2 text-center">
                     <button type="button" onClick={() => removeVariant(i)}>
                       <Trash2 size={16} className="text-red-500" />
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>

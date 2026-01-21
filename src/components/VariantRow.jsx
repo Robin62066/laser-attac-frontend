@@ -25,6 +25,12 @@ const VariantRow = ({ index, variant, onChange, onRemove }) => {
         value={variant.engraving}
         onChange={(e) => onChange(index, "engraving", e.target.value)}
       />
+      <input
+        placeholder="LogoPrice/piece"
+        className="border p-2"
+        value={variant.engraving_cost_piece}
+        onChange={(e) => onChange(index, "engraving_cost_piece", e.target.value)}
+      />
       <button
         onClick={() => onRemove(index)}
         className="bg-red-500 text-white rounded"

@@ -127,7 +127,8 @@ export default function ProductView() {
                 <th>MOQ</th>
                 <th>Type</th>
                 <th>Cost / Piece</th>
-                <th>Logo Engraving Cost</th>
+                <th>Logo Branding Type</th>
+                <th>Logo Branding Cost/Piece</th>
               </tr>
             </thead>
             <tbody>
@@ -145,6 +146,7 @@ export default function ProductView() {
                   <td className="uppercase">{v.type}</td>
                   <td>₹{v.price}</td>
                   <td>₹{v.engraving}</td>
+                  <td>₹{v.engraving_cost_piece}</td>
                 </tr>
               ))}
             </tbody>
